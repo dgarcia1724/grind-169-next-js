@@ -1,4 +1,31 @@
 import Image from "next/image";
+import Link from "next/link";
+
+const dummyProblems = [
+  {
+    id: 1,
+    orderNumber: 1,
+    problemName: "Two Sum",
+    linkToProblem: "https://leetcode.com/problems/two-sum",
+    solution: "",
+    difficulty: "EASY",
+    topic: "Array",
+    confidenceRating: 8.5,
+    lastEdited: "2024-01-15T20:51:21.434Z"
+  },
+  {
+    id: 2,
+    orderNumber: 2,
+    problemName: "Valid Parentheses",
+    linkToProblem: "https://leetcode.com/problems/valid-parentheses",
+    solution: "",
+    difficulty: "EASY",
+    topic: "Stack",
+    confidenceRating: 7.2,
+    lastEdited: "2024-01-14T15:30:00.000Z"
+  },
+  // Add more dummy problems as needed
+];
 
 export default function Home() {
   return (
@@ -13,7 +40,42 @@ export default function Home() {
           </p>
         </div>
 
-        {/* You can keep or remove the existing content as needed */}
+        <div className="space-y-2">
+          {dummyProblems.map((problem) => (
+            <div key={problem.id} className="bg-gray-800 p-4 rounded-lg flex items-center">
+              <div className="text-3xl font-bold text-gray-500 mr-6 w-12">
+                {problem.orderNumber}
+              </div>
+              
+              <div className="flex-grow">
+                <Link 
+                  href={problem.linkToProblem}
+                  className="text-blue-500 hover:text-blue-400 text-lg font-medium"
+                >
+                  {problem.problemName}
+                </Link>
+                
+                <div className="flex items-center mt-1 space-x-4">
+                  <span className="text-green-500 text-sm">{problem.difficulty}</span>
+                  <span className="text-gray-400 text-sm">{problem.topic}</span>
+                </div>
+              </div>
+
+              <div className="text-xl font-bold text-green-500 mx-6">
+                {problem.confidenceRating.toFixed(1)}
+              </div>
+
+              <div className="flex flex-col items-end">
+                <button className="px-4 py-1 bg-blue-600 text-sm rounded hover:bg-blue-700 mb-1">
+                  Update Timestamp
+                </button>
+                <div className="text-sm text-gray-400">
+                  {new Date(problem.lastEdited).toLocaleDateString()}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
       </main>
     </div>
   );
