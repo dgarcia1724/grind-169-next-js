@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline';
 
 const dummyProblems = [
   {
@@ -26,6 +27,21 @@ const dummyProblems = [
   },
   // Add more dummy problems as needed
 ];
+
+const confidenceColors = {
+  high: "text-green-500",    // 8.0 - 10.0
+  good: "text-yellow-500",   // 6.0 - 8.0
+  medium: "text-orange-500", // 4.0 - 6.0
+  low: "text-red-500"        // 0.0 - 4.0
+};
+
+// Helper function to determine color based on rating
+const getConfidenceColor = (rating: number): string => {
+  if (rating >= 8.0) return confidenceColors.high;
+  if (rating >= 6.0) return confidenceColors.good;
+  if (rating >= 4.0) return confidenceColors.medium;
+  return confidenceColors.low;
+};
 
 export default function Home() {
   return (
@@ -61,17 +77,23 @@ export default function Home() {
                 </div>
               </div>
 
-              <div className="text-xl font-bold text-green-500 mx-6">
+              <div className={`text-2xl font-bold ${getConfidenceColor(problem.confidenceRating)} w-20 text-center`}>
                 {problem.confidenceRating.toFixed(1)}
               </div>
 
-              <div className="flex flex-col items-end">
-                <button className="px-4 py-1 bg-blue-600 text-sm rounded hover:bg-blue-700 mb-1">
-                  Update Timestamp
-                </button>
+              <div className="w-32 text-right mr-6">
                 <div className="text-sm text-gray-400">
                   {new Date(problem.lastEdited).toLocaleDateString()}
                 </div>
+              </div>
+
+              <div className="flex space-x-2">
+                <button className="p-2 hover:bg-gray-700 rounded-full">
+                  <PencilSquareIcon className="w-6 h-6 text-blue-500" />
+                </button>
+                <button className="p-2 hover:bg-gray-700 rounded-full">
+                  <TrashIcon className="w-6 h-6 text-red-500" />
+                </button>
               </div>
             </div>
           ))}
