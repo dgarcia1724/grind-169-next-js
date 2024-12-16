@@ -1,6 +1,10 @@
+"use client"
+
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline';
+import AddNewProblemModal from "@/components/modals/AddNewProblemModal";
 
 const dummyProblems = [
   {
@@ -44,6 +48,22 @@ const getConfidenceColor = (rating: number): string => {
 };
 
 export default function Home() {
+  const [isAddNewProblemModalOpen, setIsAddNewProblemModalOpen] = useState(false);
+
+  useEffect(() => {
+    const handleEsc = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setIsAddNewProblemModalOpen(false);
+      }
+    };
+
+    window.addEventListener('keydown', handleEsc);
+
+    return () => {
+      window.removeEventListener('keydown', handleEsc);
+    };
+  }, []);
+
   return (
     <div className="min-h-screen bg-black text-white p-8">
       <main className="max-w-7xl mx-auto">
@@ -55,6 +75,13 @@ export default function Home() {
             Spaced Repetition Study App
           </p>
         </div>
+
+        <button 
+          onClick={() => setIsAddNewProblemModalOpen(true)}
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg mb-6"
+        >
+          Add New Problem
+        </button>
 
         <div className="space-y-2">
           {dummyProblems.map((problem) => (
@@ -98,6 +125,11 @@ export default function Home() {
             </div>
           ))}
         </div>
+
+        <AddNewProblemModal 
+          isOpen={isAddNewProblemModalOpen}
+          onClose={() => setIsAddNewProblemModalOpen(false)}
+        />
       </main>
     </div>
   );
