@@ -1,7 +1,9 @@
 "use client"
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { XMarkIcon } from '@heroicons/react/24/outline';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { problemsApi } from '@/api/problems';
 
 interface AddNewProblemModalProps {
   isOpen: boolean;
@@ -11,6 +13,7 @@ interface AddNewProblemModalProps {
 type Difficulty = 'EASY' | 'MEDIUM' | 'HARD';
 
 export default function AddNewProblemModal({ isOpen, onClose }: AddNewProblemModalProps) {
+  const queryClient = useQueryClient();
   const [formData, setFormData] = useState({
     orderNumber: '',
     problemName: '',
@@ -20,10 +23,51 @@ export default function AddNewProblemModal({ isOpen, onClose }: AddNewProblemMod
     confidenceRating: 0,
   });
 
+  useEffect(() => {
+    const handleEsc = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        onClose();
+      }
+    };
+
+    if (isOpen) {
+      window.addEventListener('keydown', handleEsc);
+      return () => {
+        window.removeEventListener('keydown', handleEsc);
+      };
+    }
+  }, [isOpen, onClose]);
+
+  const createProblemMutation = useMutation({
+    mutationFn: () => problemsApi.create({
+      ...formData,
+      orderNumber: parseInt(formData.orderNumber),
+      lastEdited: new Date().toISOString(),
+      solution: null,
+    }),
+    onSuccess: () => {
+      // Invalidate and refetch the problems query
+      queryClient.invalidateQueries({ queryKey: ['problems'] });
+      // Reset form and close modal
+      setFormData({
+        orderNumber: '',
+        problemName: '',
+        linkToProblem: '',
+        difficulty: 'EASY',
+        topic: '',
+        confidenceRating: 0,
+      });
+      onClose();
+    },
+    onError: (error) => {
+      // Handle error here (you might want to show an error message)
+      console.error('Failed to create problem:', error);
+    },
+  });
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle form submission here
-    console.log(formData);
+    createProblemMutation.mutate();
   };
 
   if (!isOpen) return null;
@@ -134,10 +178,17 @@ export default function AddNewProblemModal({ isOpen, onClose }: AddNewProblemMod
 
           <button
             type="submit"
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg mt-6"
+            disabled={createProblemMutation.isPending}
+            className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-semibold py-2 px-4 rounded-lg mt-6"
           >
-            Add Problem
+            {createProblemMutation.isPending ? 'Adding Problem...' : 'Add Problem'}
           </button>
+
+          {createProblemMutation.isError && (
+            <p className="text-red-500 text-sm mt-2">
+              Error: {createProblemMutation.error.message}
+            </p>
+          )}
         </form>
       </div>
     </>

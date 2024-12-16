@@ -1,68 +1,66 @@
 "use client"
 
-import { useState, useEffect } from "react";
-import Image from "next/image";
-import Link from "next/link";
-import { PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline';
+import { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { problemsApi, Problem } from '@/api/problems';
+import { ProblemCard } from "@/components/ProblemCard";
 import AddNewProblemModal from "@/components/modals/AddNewProblemModal";
-
-const dummyProblems = [
-  {
-    id: 1,
-    orderNumber: 1,
-    problemName: "Two Sum",
-    linkToProblem: "https://leetcode.com/problems/two-sum",
-    solution: "",
-    difficulty: "EASY",
-    topic: "Array",
-    confidenceRating: 8.5,
-    lastEdited: "2024-01-15T20:51:21.434Z"
-  },
-  {
-    id: 2,
-    orderNumber: 2,
-    problemName: "Valid Parentheses",
-    linkToProblem: "https://leetcode.com/problems/valid-parentheses",
-    solution: "",
-    difficulty: "EASY",
-    topic: "Stack",
-    confidenceRating: 7.2,
-    lastEdited: "2024-01-14T15:30:00.000Z"
-  },
-  // Add more dummy problems as needed
-];
-
-const confidenceColors = {
-  high: "text-green-500",    // 8.0 - 10.0
-  good: "text-yellow-500",   // 6.0 - 8.0
-  medium: "text-orange-500", // 4.0 - 6.0
-  low: "text-red-500"        // 0.0 - 4.0
-};
-
-// Helper function to determine color based on rating
-const getConfidenceColor = (rating: number): string => {
-  if (rating >= 8.0) return confidenceColors.high;
-  if (rating >= 6.0) return confidenceColors.good;
-  if (rating >= 4.0) return confidenceColors.medium;
-  return confidenceColors.low;
-};
+import DeleteProblemModal from "@/components/modals/DeleteProblemModal";
 
 export default function Home() {
   const [isAddNewProblemModalOpen, setIsAddNewProblemModalOpen] = useState(false);
+  const [sortMethod, setSortMethod] = useState<string>('order');
+  const [problemToDelete, setProblemToDelete] = useState<string | null>(null);
 
-  useEffect(() => {
-    const handleEsc = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        setIsAddNewProblemModalOpen(false);
+  const queryClient = useQueryClient();
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => problemsApi.delete(Number(id)),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['problems'] });
+    },
+  });
+
+  // Updated query with dynamic sort method
+  const { data: problems, isLoading, isError, error } = useQuery<Problem[]>({
+    queryKey: ['problems', sortMethod],
+    queryFn: () => {
+      switch (sortMethod) {
+        case 'lastEdited':
+          return problemsApi.getAllByLastEdited();
+        case 'difficulty':
+          return problemsApi.getAllByDifficultyAsc();
+        case 'confidence':
+          return problemsApi.getAllByConfidence();
+        default:
+          return problemsApi.getAll();
       }
-    };
+    },
+  });
 
-    window.addEventListener('keydown', handleEsc);
+  const handleEdit = (id: string) => {
+    // TODO: Implement edit functionality
+    console.log('Edit problem:', id);
+  };
 
-    return () => {
-      window.removeEventListener('keydown', handleEsc);
-    };
-  }, []);
+  const handleDelete = (id: string) => {
+    setProblemToDelete(id);
+  };
+
+  const confirmDelete = () => {
+    if (problemToDelete) {
+      deleteMutation.mutate(problemToDelete);
+      setProblemToDelete(null);
+    }
+  };
+
+  if (isLoading) {
+    return <div className="min-h-screen bg-black text-white p-8">Loading...</div>;
+  }
+
+  if (isError) {
+    return <div className="min-h-screen bg-black text-white p-8">Error: {error.message}</div>;
+  }
 
   return (
     <div className="min-h-screen bg-black text-white p-8">
@@ -76,59 +74,46 @@ export default function Home() {
           </p>
         </div>
 
-        <button 
-          onClick={() => setIsAddNewProblemModalOpen(true)}
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg mb-6"
-        >
-          Add New Problem
-        </button>
+        <div className="flex gap-4 mb-6">
+          <select
+            value={sortMethod}
+            onChange={(e) => setSortMethod(e.target.value)}
+            className="bg-gray-800 text-white px-4 py-2 rounded-lg border border-gray-700 focus:outline-none focus:border-blue-500"
+          >
+            <option value="order">Grind 169 Order</option>
+            <option value="lastEdited">Least Recently Edited</option>
+            <option value="difficulty">Easiest First</option>
+            <option value="confidence">Lowest Confidence First</option>
+          </select>
+
+          <button 
+            onClick={() => setIsAddNewProblemModalOpen(true)}
+            className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg"
+          >
+            Add New Problem
+          </button>
+        </div>
 
         <div className="space-y-2">
-          {dummyProblems.map((problem) => (
-            <div key={problem.id} className="bg-gray-800 p-4 rounded-lg flex items-center">
-              <div className="text-3xl font-bold text-gray-500 mr-6 w-12">
-                {problem.orderNumber}
-              </div>
-              
-              <div className="flex-grow">
-                <Link 
-                  href={problem.linkToProblem}
-                  className="text-blue-500 hover:text-blue-400 text-lg font-medium"
-                >
-                  {problem.problemName}
-                </Link>
-                
-                <div className="flex items-center mt-1 space-x-4">
-                  <span className="text-green-500 text-sm">{problem.difficulty}</span>
-                  <span className="text-gray-400 text-sm">{problem.topic}</span>
-                </div>
-              </div>
-
-              <div className={`text-2xl font-bold ${getConfidenceColor(problem.confidenceRating)} w-20 text-center`}>
-                {problem.confidenceRating.toFixed(1)}
-              </div>
-
-              <div className="w-32 text-right mr-6">
-                <div className="text-sm text-gray-400">
-                  {new Date(problem.lastEdited).toLocaleDateString()}
-                </div>
-              </div>
-
-              <div className="flex space-x-2">
-                <button className="p-2 hover:bg-gray-700 rounded-full">
-                  <PencilSquareIcon className="w-6 h-6 text-blue-500" />
-                </button>
-                <button className="p-2 hover:bg-gray-700 rounded-full">
-                  <TrashIcon className="w-6 h-6 text-red-500" />
-                </button>
-              </div>
-            </div>
+          {problems?.map((problem) => (
+            <ProblemCard
+              key={problem.id}
+              problem={problem}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+            />
           ))}
         </div>
 
         <AddNewProblemModal 
           isOpen={isAddNewProblemModalOpen}
           onClose={() => setIsAddNewProblemModalOpen(false)}
+        />
+
+        <DeleteProblemModal 
+          isOpen={problemToDelete !== null}
+          onClose={() => setProblemToDelete(null)}
+          onConfirm={confirmDelete}
         />
       </main>
     </div>
