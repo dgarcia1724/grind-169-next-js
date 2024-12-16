@@ -5,8 +5,8 @@ import { getConfidenceColor, getDifficultyColor } from '@/utils/colors';
 
 interface ProblemCardProps {
   problem: Problem;
-  onEdit: (id: string) => void;
-  onDelete: (id: string) => void;
+  onEdit: (id: number) => void;
+  onDelete: (id: number) => void;
 }
 
 export const ProblemCard = ({ problem, onEdit, onDelete }: ProblemCardProps) => {

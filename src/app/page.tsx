@@ -6,11 +6,13 @@ import { problemsApi, Problem } from '@/api/problems';
 import { ProblemCard } from "@/components/ProblemCard";
 import AddNewProblemModal from "@/components/modals/AddNewProblemModal";
 import DeleteProblemModal from "@/components/modals/DeleteProblemModal";
+import EditProblemModal from "@/components/modals/EditProblemModal";
 
 export default function Home() {
   const [isAddNewProblemModalOpen, setIsAddNewProblemModalOpen] = useState(false);
   const [sortMethod, setSortMethod] = useState<string>('order');
   const [problemToDelete, setProblemToDelete] = useState<string | null>(null);
+  const [problemToEdit, setProblemToEdit] = useState<Problem | undefined>(undefined);
 
   const queryClient = useQueryClient();
 
@@ -38,9 +40,9 @@ export default function Home() {
     },
   });
 
-  const handleEdit = (id: string) => {
-    // TODO: Implement edit functionality
-    console.log('Edit problem:', id);
+  const handleEdit = (id: number) => {
+    const problemToEdit = problems?.find(p => p.id === id);
+    setProblemToEdit(problemToEdit);
   };
 
   const handleDelete = (id: string) => {
@@ -114,6 +116,12 @@ export default function Home() {
           isOpen={problemToDelete !== null}
           onClose={() => setProblemToDelete(null)}
           onConfirm={confirmDelete}
+        />
+
+        <EditProblemModal 
+          isOpen={problemToEdit !== undefined}
+          onClose={() => setProblemToEdit(undefined)}
+          problem={problemToEdit}
         />
       </main>
     </div>
