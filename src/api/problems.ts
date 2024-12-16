@@ -90,4 +90,14 @@ export const problemsApi = {
     }
     return response.json();
   },
+
+  updateTimestamp: async (id: number): Promise<Problem> => {
+    const response = await fetch(`${API_BASE_URL}/problems/${id}/timestamp`, {
+      method: 'PATCH',
+    });
+    if (!response.ok) {
+      throw new Error('Failed to update timestamp');
+    }
+    return response.json();
+  },
 };
