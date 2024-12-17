@@ -32,7 +32,7 @@ export const ProblemCard = ({ problem, onEdit, onDelete }: ProblemCardProps) => 
         </div>
       </div>
 
-      <div className={`text-2xl font-bold ${getConfidenceColor(problem.confidenceRating)} w-20 text-center`}>
+      <div className={`text-2xl font-bold ${getConfidenceColor(Number(problem.confidenceRating))} w-20 text-center`}>
         {problem.confidenceRating.toFixed(1)}
       </div>
 

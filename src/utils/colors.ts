@@ -6,14 +6,18 @@ export const confidenceColors = {
 };
 
 export const getConfidenceColor = (rating: number): string => {
-  if (rating >= 8.0) return confidenceColors.high;
-  if (rating >= 6.0) return confidenceColors.good;
-  if (rating >= 4.0) return confidenceColors.medium;
+  const numericRating = Number(rating);
+  
+  if (numericRating >= 8.0) return confidenceColors.high;
+  if (numericRating >= 6.0) return confidenceColors.good;
+  if (numericRating >= 4.0) return confidenceColors.medium;
   return confidenceColors.low;
 };
 
 export const getDifficultyColor = (difficulty: string): string => {
-  switch (difficulty.toLowerCase()) {
+  const normalizedDifficulty = difficulty?.toLowerCase()?.trim() || '';
+  
+  switch (normalizedDifficulty) {
     case 'easy':
       return 'text-green-500';
     case 'medium':
@@ -21,6 +25,7 @@ export const getDifficultyColor = (difficulty: string): string => {
     case 'hard':
       return 'text-red-500';
     default:
+      console.log('Unmatched difficulty:', difficulty);
       return 'text-gray-500';
   }
 };
