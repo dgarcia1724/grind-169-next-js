@@ -45,8 +45,8 @@ export default function Home() {
     setProblemToEdit(problemToEdit);
   };
 
-  const handleDelete = (id: string) => {
-    setProblemToDelete(id);
+  const handleDelete = (id: number) => {
+    setProblemToDelete(id.toString());
   };
 
   const confirmDelete = () => {
