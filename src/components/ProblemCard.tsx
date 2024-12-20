@@ -12,7 +12,7 @@ interface ProblemCardProps {
 }
 
 export const ProblemCard = ({ problem, onEdit, onDelete, isSelected, onCardClick }: ProblemCardProps) => {
-  const handleClick = (e: React.MouseEvent) => {
+  const handleClick = () => {
     onCardClick(problem.id);
   };
 
