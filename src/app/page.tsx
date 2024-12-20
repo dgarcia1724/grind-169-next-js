@@ -13,6 +13,7 @@ export default function Home() {
   const [sortMethod, setSortMethod] = useState<string>('order');
   const [problemToDelete, setProblemToDelete] = useState<string | null>(null);
   const [problemToEdit, setProblemToEdit] = useState<Problem | undefined>(undefined);
+  const [selectedProblemId, setSelectedProblemId] = useState<number | null>(null);
 
   const queryClient = useQueryClient();
 
@@ -54,6 +55,10 @@ export default function Home() {
       deleteMutation.mutate(problemToDelete);
       setProblemToDelete(null);
     }
+  };
+
+  const handleCardClick = (id: number) => {
+    setSelectedProblemId(id === selectedProblemId ? null : id);
   };
 
   if (isLoading) {
@@ -103,6 +108,8 @@ export default function Home() {
               problem={problem}
               onEdit={handleEdit}
               onDelete={handleDelete}
+              isSelected={problem.id === selectedProblemId}
+              onCardClick={handleCardClick}
             />
           ))}
         </div>

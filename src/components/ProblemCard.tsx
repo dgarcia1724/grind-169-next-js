@@ -7,11 +7,22 @@ interface ProblemCardProps {
   problem: Problem;
   onEdit: (id: number) => void;
   onDelete: (id: number) => void;
+  isSelected?: boolean;
+  onCardClick: (id: number) => void;
 }
 
-export const ProblemCard = ({ problem, onEdit, onDelete }: ProblemCardProps) => {
+export const ProblemCard = ({ problem, onEdit, onDelete, isSelected, onCardClick }: ProblemCardProps) => {
+  const handleClick = (e: React.MouseEvent) => {
+    onCardClick(problem.id);
+  };
+
   return (
-    <div className="bg-gray-800 p-4 rounded-lg flex items-center">
+    <div 
+      className={`bg-gray-800 p-4 rounded-lg flex items-center cursor-pointer
+        ${isSelected ? 'outline outline-2 outline-red-500' : ''}
+        hover:bg-gray-750`}
+      onClick={handleClick}
+    >
       <div className="text-3xl font-bold text-gray-500 mr-6 w-12">
         {problem.orderNumber}
       </div>
