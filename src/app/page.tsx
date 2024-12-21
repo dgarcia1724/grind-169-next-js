@@ -58,7 +58,7 @@ export default function Home() {
   };
 
   const handleCardClick = (id: number) => {
-    setSelectedProblemId(id === selectedProblemId ? null : id);
+    setSelectedProblemId(id);
   };
 
   if (isLoading) {
